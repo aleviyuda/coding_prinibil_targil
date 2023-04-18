@@ -11,6 +11,7 @@ void main()
 {
     writeln("Enter path of input folder");
     string input = "C:\\D\\nand2tetris\\projects\\07\\StackArithmetic\\StackTest";
+    //string input = readln();
     foreach (f_vm; dirEntries(input,"*.vm",SpanMode.shallow)){
         Parser parser  = new Parser(f_vm.name);
         CodeWriter coder = new CodeWriter(input ~ ".asm");
