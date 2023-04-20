@@ -200,7 +200,7 @@ public class CodeWriter{
             default:
         }
     }
-    void writePushOrPop(string cType,string segment, int index){
+    void writePushOrPop(string cType,string segment, int index, string file_name){
         switch (cType){
             case "C_PUSH":
                 switch (segment){
@@ -238,6 +238,21 @@ public class CodeWriter{
                         output_file.write(
                             "//*************---push this command---************\n
                         @THIS\n
+                         D =\n/n
+                         @"~to!string(index)~
+                            "D = D + A
+                         A = D\n
+                         D = M\n
+                         @SP\n
+                         A = M\n
+                         M = D\n
+                         @SP\n
+                         M = M + 1\n");
+                        break;
+                    case "that":
+                        output_file.write(
+                            "//*************---push this command---************\n
+                        @THAT\n
                          D =\n/n
                          @"~to!string(index)~
                             "D = D + A
@@ -314,102 +329,109 @@ public class CodeWriter{
                     case "local":
                         output_file.write(
                             "//*************---pop local command---************\n
-                        @LCL\n
-                        D = M\n
-                        @"~to!string(index)~
-                            "\nD = D +A\n
-
                         @SP\n
                         M = M -1\n
-                        E = M\n
+                        A = M\n
+                        D = M\n
 
-                        A = D\n
-                        M = E\n"
-                        );
+                        @LCL\n
+                        A = M\n");
+                        for (int i = 0 ; i < index; i++){
+                            output_file.write("A = A + 1");
+                        }
+                        output_file.write("
+                        M = D\n");
                         break;
                     case "argument":
                         output_file.write(
                             "//*************---pop argument command---************\n
-                        @ARG\n
-                        D = M\n
-                        @"~to!string(index)~
-                            "\nD = D +A\n
-
                         @SP\n
                         M = M -1\n
-                        E = M\n
+                        A = M\n
+                        D = M\n
 
-                        A = D\n
-                        M = E\n"
-                        );
+                        @ARG\n
+                        A = M\n");
+                        for (int i = 0 ; i < index; i++){
+                            output_file.write("A = A + 1");
+                        }
+                        output_file.write("
+                        M = D\n");
                         break;
                     case "this":
                         output_file.write(
-                            "//*************---pop this command---************\n
-                        @THIS\n
-                        D = M\n
-                        @"~to!string(index)~
-                            "\nD = D +A\n
-
+                            "//*************---pop local command---************\n
                         @SP\n
                         M = M -1\n
-                        E = M\n
+                        A = M\n
+                        D = M\n
 
-                        A = D\n
-                        M = E\n"
-                        );
+                        @THIS\n
+                        A = M\n");
+                        for (int i = 0 ; i < index; i++){
+                            output_file.write("A = A + 1");
+                        }
+                        output_file.write("
+                        M = D\n");
+                        break;
+                    case "that":
+                        output_file.write(
+                            "//*************---pop local command---************\n
+                        @SP\n
+                        M = M -1\n
+                        A = M\n
+                        D = M\n
+
+                        @THAT\n
+                        A = M\n");
+                        for (int i = 0 ; i < index; i++){
+                            output_file.write("A = A + 1");
+                        }
+                        output_file.write("
+                        M = D\n");
                         break;
                     case "static":
                     //not shure where static is
                         output_file.write(
                             "//*************---pop static command---************\n
-                        @LCL\n
+                          @SP\n
+                        A = M -1\n
                         D = M\n
-                        @"~to!string(index)~
-                            "\nD = D +A\n
+
+                        @" ~file_name~ "." ~ to!string(index)~
+                        "\nM = D \n
 
                         @SP\n
-                        M = M -1\n
-                        E = M\n
-
-                        A = D\n
-                        M = E\n"
+                        M = M -1\n"
                         );
                         break;
                     case "pointer":
+                        index += 3;
                         output_file.write(
-                            "//*************---pop pointer command---************\n
-                        @THIS\n
-                        D = A\n
-                        @"~to!string(index)~
-                            "\nD = D +A\n
+                         "//*************---pop pointer command---************\n
 
                         @SP\n
-                        M = M -1\n
-                        E = M\n
+                        A = M -1\n
+                        D = M\n
 
+                        @"~to!string(index)~
+                        "\nM = D\n
                         A = D\n
-                        A = M\n
-                        M = E\n"
+                        @SP\n
+                        M = M - 1\n"
                         );
                         break;
                     case "temp":
+                        index += 5;
                         output_file.write(
                             "//*************---pop temp command---************\n
-                        //D = 5 + index\n
-                        @5\n
-                        D = A\n
-                        @"~to!string(index)~
-                            "\nD = D +A\n
-
-                        //SP--\n
                         @SP\n
-                        M = M -1\n
-                        //E = top\n
-                        E = M\n
-                        //RAM[D] = E\n
-                        A = D\n
-                        M = E\n"
+                        A=M-1\n
+                        D=M\n
+                        @"~to!string(index)~
+                        "M=D\n
+                        @SP\n
+                        M=M-1\n"
                         );
                         break;
                     default:
