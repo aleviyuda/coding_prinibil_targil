@@ -20,7 +20,8 @@ void main()
             switch (parser.commandType()){
                 case "C_PUSH":
                 case "C_POP":
-                    coder.writePushOrPop(parser.commandType(), parser.arg1(), to!int(parser.arg2()));
+                    string [] splites = input.split("\\");
+                    coder.writePushOrPop(parser.commandType(), parser.arg1(), to!int(parser.arg2()),splites[splites.length-1]);
                     break;
                 case "C_ARITHMETIC":
                     coder.writeArithmetic(parser.current_command());
