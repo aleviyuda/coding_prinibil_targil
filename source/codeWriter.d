@@ -7,8 +7,12 @@ import std.conv;
 import std.string;
 public class CodeWriter{
     File output_file;
+    private int Eq_count = 0;
     this(string output){
         output_file = File(output,"w");
+    }
+    void writeLabel(string label){
+
     }
 
     void writeArithmetic(string command){
@@ -16,187 +20,146 @@ public class CodeWriter{
             case "add":
                 output_file.write(
                  "//*************---add command---************\n
-                // insert\n
                 @SP\n
-                A = M - 1\n
-                D = M\n
-                @Sp\n
-                M = M - 2 // clean the queue\n
-
-                //insert\n
-                A = M - 2\n
-                E = M\n
-
-                // oparation\n
-                D = E + D\n
-
-                //insert the translation into queue\n
-                @Sp\n
-                M = D\n
+	            A = M - 1\n
+	            D = M-1\n
+	            A = A - 1\n
+	            M = M + D\n
+	            @SP\n
+	            M = M - 1\n
                 ");
                 break;
             case "sub":
                 output_file.write(
                  "//*************---sub command---************\n
-                // insert
-                @SP;
-                A = M - 1;
-                D = M;
-                @Sp;
-                M = M - 2; // clean the queue
-
-                //insert
-                A = M - 2;
-                E = M;
-
-                // oparation
-                D = D - E;
-
-                //insert the translation into queue
-                @Sp;
-                M = D;");
+                @SP\n
+	            A = M - 1\n
+	            D = M-1\n
+	            A = A - 1\n
+	            M = M - D\n
+	            @SP\n
+	            M = M - 1\n");
                 break;
             case "neg":
                 output_file.write(
                     "//*************---neg command---************\n
-                // insert\n
-	            @SP\n
+                @SP\n
 	            A = M - 1\n
-	            D = M\n
-	            @Sp\n
-	            M = M - 2 // clean the queue\n
-
-
-	            // oparation\n
-	            D = 0 - E\n
-
-	            //insert the translation into queue\n
-	            @Sp\n
-	            M = D\n
+	            M = -M\n
                 ");
                 break;
             case "eq":
+                Eq_count += 1;
                 output_file.write(
                     "//*************---eq command---************\n
-                	// insert\n
+                	@SP\n
+	                A=M-1\n
+	                D=M\n
+	                A=A-1\n
+	                D=D-M\n
+	                @IF_TRUE"~to!string(Eq_count)~
+	                "\n D;JEQ\n
+	                D=0\n
 	                @SP\n
-	                A = M - 1\n
-	                D = M\n
-	                @Sp\n
-	                M = M - 2 // clean the queue\n
-
-	                //insert\n
-	                A = M - 2\n
-	                E = M\n
-
-	                // oparation\n
-	                D = D == E\n
-
-	                //insert the translation into queue\n
-	                @Sp\n
-	                M = D\n");
+	                A=M-1\n
+	                A=A-1\n
+	                M=D\n
+	                @IF_FALSE"~to!string(Eq_count)~
+	                "\n 0;JMP\n
+	                (@IF_TRUE"~to!string(Eq_count)~")\n
+	                D=-1\n
+	                @SP\n
+	                A=M-1\n
+	                A=A-1\n
+	                M=D\n
+	                (@IF_FALSE"~to!string(Eq_count)~")\n
+	                @SP\n
+	                M=M-1\n");
                 break;
             case "gt":
+                Eq_count += 1;
                 output_file.write(
                     "//*************---gt command---************\n
-                // insert\n
                 @SP\n
-                A = M - 1\n
-                D = M\n
-                @Sp\n
-                M = M - 2 // clean the queue\n
-
-                //insert\n
-                A = M - 2\n
-                E = M\n
-
-                // oparation\n
-                D = D > E\n
-
-                //insert the translation into queue\n
-                @Sp\n
-                M = D\n");
+	            A=M-1\n
+	            D=M\n
+	            A=A-1\n
+	            D=M-D\n
+	            @IF_TRUE"~to!string(Eq_count)~
+	            "\nD;JGT\n
+	            D=0\n
+	            @SP\n
+	            A=M-1\n
+	            A=A-1\n
+	            M=D\n
+	            @IF_FALSE"~to!string(Eq_count)~
+	            "\n0;JMP\n
+	            (@IF_TRUE"~to!string(Eq_count)~")\n
+	            D=-1\n
+	            @SP\n
+	            A=M-1\n
+	            A=A-1\n
+	            M=D\n
+	            (@IF_FALSE"~to!string(Eq_count)~")\n
+	            @SP\n
+	            M=M-1\n");
                 break;
             case "lt":
+                Eq_count += 1;
                 output_file.write(
                     "//*************---lt command---************\n
-                    // insert\n
+                    @SP\n
+	                A=M-1\n
+	                D=M\n
+	                A=A-1\n
+	                D=M-D\n
+	                @IF_TRUE"~to!string(Eq_count)~
+	                "\nD;JLT\n
+	                D=0\n
 	                @SP\n
-	                A = M - 1\n
-	                D = M\n
-	                @Sp\n
-	                M = M - 2 // clean the queue\n
-
-	                //insert\n
-	                A = M - 2\n
-	                E = M\n
-
-	                // oparation\n
-	                D = D < E\n
-
-	                //insert the translation into queue\n
-	                @Sp\n
-	                M = D;\n");
+	                A=M-1\n
+	                A=A-1\n
+	                M=D\n
+	                @IF_FALSE"~to!string(Eq_count)~
+	                "\n0;JMP\n
+	                (@IF_TRUE"~to!string(Eq_count)~")\n
+	                D=-1\n
+	                @SP\n
+	                A=M-1\n
+	                A=A-1\n
+	                M=D\n
+	                (@IF_FALSE"~to!string(Eq_count)~")\n
+	                @SP\n
+	                M=M-1\n");
                 break;
             case "and":
                 output_file.write(
                     "//*************---and command---************\n
-                    // insert\n
-	                @SP\n
 	                A = M - 1\n
 	                D = M\n
-	                @Sp\n
-	                M = M - 2 // clean the queue\n
-
-	                //insert\n
-	                A = M - 2\n
-	                E = M\n
-
-	                // oparation
-	                D = D && E\n
-
-	                //insert the translation into queue\n
-	                @Sp\n
-	                M = D\n");
+	                A = A - 1\n
+	                M = M&D\n
+	                @SP\n
+	                M = M - 1\n");
                 break;
             case "or":
                 output_file.write(
                     "//*************---or command---************\n
-                // insert\n
-	            @SP\n
+                @SP\n
 	            A = M - 1\n
 	            D = M\n
-	            @Sp\n
-	            M = M - 2 // clean the queuen\n
-
-	            //insert\n
-	            A = M - 2\n
-	            E = M\n
-
-	            // oparation\n
-	            D = D || E\n
-
-	            //insert the translation into queue\n
-	            @Sp\n
-	            M = D\n");
+	            A = A - 1\n
+	            M = M|D\n
+	            @SP\n
+	            M = M - 1\n");
                 break;
             case "not":
                 output_file.write(
                     "//*************---not command---************\n
-               // insert\n
-	           @SP\n
-	           A = M - 1\n
-	           D = M\n
-	           @Sp\n
-	           M = M - 2 // clean the queue\n
-
-	           // oparation\n
-	           D = !D\n
-
-	           //insert the translation into queue\n
-	           @Sp\n
-	           M = D\n");
-                break;
+              @SP\n
+	          A = M - 1\n
+	          M = !M\n");
+              break;
             default:
         }
     }
@@ -443,6 +406,7 @@ public class CodeWriter{
                 output_file.write("//********SEGMENT ERROR********");
                 break;
         }
+
     }
     void close(){
         output_file.close();
