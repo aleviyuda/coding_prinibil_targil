@@ -26,6 +26,26 @@ void main()
                 case "C_ARITHMETIC":
                     coder.writeArithmetic(parser.current_command());
                     break;
+                case "C_LABEL":
+                    coder.writeLabel(parser.arg1());
+                    break;
+                    break;
+                case "C_GOTO":
+                    string [] splites = input.split("\\");
+                    coder.writeGoto(parser.arg1(),splites[splites.length-1]);
+                    break;
+                case "C_IF":
+                    coder.writeIf(parser.arg1(),splites[splites.length-1]);
+                    break;
+                case "C_FUNCTION":
+                    coder.writeFunction(parser.arg1(),to!int(parser.arg2()));
+                    break;
+                case "C_CALL":
+                    string [] splites = input.split("\\");
+                    coder.writeCall(parser.arg1(),to!int(parser.arg2()),splites[splites.length-1]);                    break;
+                case "C_RETURN":
+                    coser.writeReturn();
+                    break;
                 default:
                     break;
             }

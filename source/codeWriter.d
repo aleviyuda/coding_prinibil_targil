@@ -14,7 +14,154 @@ public class CodeWriter{
     void writeLabel(string label){
 
     }
+    void writeReturn(){
+        output_file.write("//*************---return command---************\n
+        @LCL
+        D=M
+        @5
+        A=D-A
+        D=M
+        @13
+        M=D
+        @SP
+        M=M-1
+        A=M
+        D=M
+        @ARG
+        A=M
+        M=D
+        @ARG
+        D=M
+        @SP
+        M=D+1
+        @LCL
+        M=M-1
+        A=M
+        D=M
+        @THAT
+        M=D
+        @LCL
+        M=M-1
+        A=M
+        D=M
+        @THIS
+        M=D
+        @LCL
+        M=M-1
+        A=M
+        D=M
+        @ARG
+        M=D
+        @LCL
+        M=M-1
+        A=M
+        D=M
+        @LCL
+        M=D
+        @13
+        A=M
+        0;JMP");
+        }
+    void writeGoto(string label, string file_name){
+        output_file.write("//*************---goto command---************\n
+         @" + file_name + "." + label + "\n"
+        "0;JMP");
+    }
+    void writeIF(string label, string file_name){
+        output_file.write("//*************---if command---************\n
+    @SP
+	M=M-1
+	A=M
+	D=M"
+	"@" ~ file_name1 ~ "." ~ label ~
+	"D;JNE");
+    }
+    void writeFunction(string func_name, int nArg, string file_name){
+        output_file.write("//*************---function command---************\n
+        (splited[1])
+	    @splited[2]
+	    D=A
+	    @" ~ filename~ ".Endloop" ~jumpnum~
+	    "D;JEQ
+	    (" ~filename~ ".Loop" ~jumpnum~ ")
+	    @SP
+	    A=M
+	    M=0
+	    @SP
+	    M=M+1
+	    @"~filename~ ".Loop" ~jumpnum~"
+	    D=D-1;JNE
+	    (" ~filename~ ".Endloop" ~jumpnum~ );
+    }
+    void writeCall(string func_name, int nArg, string file_name){
+        output_file.write("//*************---call command---************\n
+           // push return-address
+	        @g.ReturnAddress
+	        D=A
+	        @SP
+	        A=M
+	        M=D
+	        @SP
+	        M=M+1
+	         
+	        // push LCL
+	        @LCL
+	        D=M
+	        @SP
+	        A=M
+	        M=D
+	        @SP
+	        M=M+1
+	         
+	        // push ARG
+	        @ARG
+	        D=M
+	        @SP
+	        A=M
+	        M=D
+	        @SP
+	        M=M+1
+	         
+	        // push THIS
+	        @THIS
+	        D=M
+	        @SP
+	        A=M
+	        M=D
+	        @SP
+	        M=M+1
+	         
+	        // push THAT
+	        @THAT
+	        D=M
+	        @SP
+	        A=M
+	        M=D
+	        @SP
+	        M=M+1
 
+	        // ARG = SP-n-5
+	        @SP
+	        D=M
+	        @newARG  // = n-5 מספר,
+	        D=D-A
+	        @ARG
+	        M=D
+	         
+	        // LCL = SP
+	        @SP
+	        D=M
+	        @LCL
+	        M=D
+	         
+	        // goto g
+	        @g
+	        0; JMP
+	         
+	        // label return-address
+	        (g.ReturnAddress)
+           ");
+    }
     void writeArithmetic(string command){
         switch (command){
             case "add":
@@ -22,10 +169,10 @@ public class CodeWriter{
                  "//*************---add command---************\n
                 @SP\n
 	            A = M - 1\n
-	            D = M-1\n
+	            D = M\n
 	            A = A - 1\n
 	            M = M + D\n
-	            @SP\n
+	            @SP \n
 	            M = M - 1\n
                 ");
                 break;
@@ -34,7 +181,7 @@ public class CodeWriter{
                  "//*************---sub command---************\n
                 @SP\n
 	            A = M - 1\n
-	            D = M-1\n
+	            D = M\n
 	            A = A - 1\n
 	            M = M - D\n
 	            @SP\n
@@ -66,13 +213,13 @@ public class CodeWriter{
 	                M=D\n
 	                @IF_FALSE"~to!string(Eq_count)~
 	                "\n 0;JMP\n
-	                (@IF_TRUE"~to!string(Eq_count)~")\n
+	                (IF_TRUE"~to!string(Eq_count)~")\n
 	                D=-1\n
 	                @SP\n
 	                A=M-1\n
 	                A=A-1\n
 	                M=D\n
-	                (@IF_FALSE"~to!string(Eq_count)~")\n
+	                (IF_FALSE"~to!string(Eq_count)~")\n
 	                @SP\n
 	                M=M-1\n");
                 break;
@@ -94,13 +241,13 @@ public class CodeWriter{
 	            M=D\n
 	            @IF_FALSE"~to!string(Eq_count)~
 	            "\n0;JMP\n
-	            (@IF_TRUE"~to!string(Eq_count)~")\n
+	            (IF_TRUE"~to!string(Eq_count)~")\n
 	            D=-1\n
 	            @SP\n
 	            A=M-1\n
 	            A=A-1\n
 	            M=D\n
-	            (@IF_FALSE"~to!string(Eq_count)~")\n
+	            (IF_FALSE"~to!string(Eq_count)~")\n
 	            @SP\n
 	            M=M-1\n");
                 break;
@@ -122,19 +269,20 @@ public class CodeWriter{
 	                M=D\n
 	                @IF_FALSE"~to!string(Eq_count)~
 	                "\n0;JMP\n
-	                (@IF_TRUE"~to!string(Eq_count)~")\n
+	                (IF_TRUE"~to!string(Eq_count)~")\n
 	                D=-1\n
 	                @SP\n
 	                A=M-1\n
 	                A=A-1\n
 	                M=D\n
-	                (@IF_FALSE"~to!string(Eq_count)~")\n
+	                (IF_FALSE"~to!string(Eq_count)~")\n
 	                @SP\n
 	                M=M-1\n");
                 break;
             case "and":
                 output_file.write(
                     "//*************---and command---************\n
+	                @SP
 	                A = M - 1\n
 	                D = M\n
 	                A = A - 1\n
