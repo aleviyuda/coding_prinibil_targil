@@ -11,155 +11,151 @@ public class CodeWriter{
     this(string output){
         output_file = File(output,"w");
     }
-    void writeLabel(string label){
-
+    void writeLabel(string label, string file_name1){
+        output_file.write("
+        //*************---label command---************\n
+        ( "~file_name1~ "."~ label~ ")\n");
     }
     void writeReturn(){
         output_file.write("//*************---return command---************\n
-        @LCL
-        D=M
-        @5
-        A=D-A
-        D=M
-        @13
-        M=D
-        @SP
-        M=M-1
-        A=M
-        D=M
-        @ARG
-        A=M
-        M=D
-        @ARG
-        D=M
-        @SP
-        M=D+1
-        @LCL
-        M=M-1
-        A=M
-        D=M
-        @THAT
-        M=D
-        @LCL
-        M=M-1
-        A=M
-        D=M
-        @THIS
-        M=D
-        @LCL
-        M=M-1
-        A=M
-        D=M
-        @ARG
-        M=D
-        @LCL
-        M=M-1
-        A=M
-        D=M
-        @LCL
-        M=D
-        @13
-        A=M
-        0;JMP");
+        @LCL\n
+        D=M\n
+        @5\n
+        A=D-A\n
+        D=M\n
+        @13\n
+        M=D\n
+        @SP\n
+        M=M-1\n
+        A=M\n
+        D=M\n
+        @ARG\n
+        A=M\n
+        M=D\n
+        @ARG\n
+        D=M\n
+        @SP\n
+        M=D+1\n
+        @LCL\n
+        M=M-1\n
+        A=M\n
+        D=M\n
+        @THAT\n
+        M=D\n
+        @LCL\n
+        M=M-1\n
+        A=M\n
+        D=M\n
+        @THIS\n
+        M=D\n
+        @LCL\n
+        M=M-1\n
+        A=M\n
+        D=M\n
+        @ARG\n
+        M=D\n
+        @LCL\n
+        M=M-1\n
+        A=M\n
+        D=M\n
+        @LCL\n
+        M=D\n
+        @13\n
+        A=M\n
+        0;JMP\n");
         }
     void writeGoto(string label, string file_name){
-        output_file.write("//*************---goto command---************\n
-         @" + file_name + "." + label + "\n"
-        "0;JMP");
+        output_file.write ("//*************---goto command---************\n"~
+         "@" ~ file_name ~ "." ~ label ~ "\n"~
+        "0;JMP\n");
     }
     void writeIF(string label, string file_name){
         output_file.write("//*************---if command---************\n
-    @SP
-	M=M-1
-	A=M
-	D=M"
-	"@" ~ file_name1 ~ "." ~ label ~
-	"D;JNE");
+    @SP\n
+	M=M-1\n
+	A=M\n
+	D=M\n"~
+	"@" ~ file_name ~ "." ~ label ~
+	"\nD;JNE\n");
     }
     void writeFunction(string func_name, int nArg, string file_name){
+        Eq_count += 1;
         output_file.write("//*************---function command---************\n
-        (splited[1])
-	    @splited[2]
-	    D=A
-	    @" ~ filename~ ".Endloop" ~jumpnum~
-	    "D;JEQ
-	    (" ~filename~ ".Loop" ~jumpnum~ ")
-	    @SP
-	    A=M
-	    M=0
-	    @SP
-	    M=M+1
-	    @"~filename~ ".Loop" ~jumpnum~"
-	    D=D-1;JNE
-	    (" ~filename~ ".Endloop" ~jumpnum~ );
+        ("~func_name~")\n
+	    @"~ to!string(nArg) ~ "\n
+	    D=A\n
+	    @" ~ file_name~ ".Endloop" ~to!string(Eq_count)~
+	    "\nD;JEQ\n
+	    (" ~file_name~ ".Loop" ~to!string(Eq_count)~ ")\n
+	    @SP\n
+	    A=M\n
+	    M=0\n
+	    @SP\n
+	    M=M+1\n
+	    @"~file_name~ ".Loop" ~to!string(Eq_count)~"
+	    D=D-1;JNE\n
+	    (" ~file_name~ ".Endloop" ~to!string(Eq_count)~ ")\n");
     }
     void writeCall(string func_name, int nArg, string file_name){
         output_file.write("//*************---call command---************\n
            // push return-address
-	        @g.ReturnAddress
-	        D=A
-	        @SP
-	        A=M
-	        M=D
-	        @SP
-	        M=M+1
-	         
-	        // push LCL
-	        @LCL
-	        D=M
-	        @SP
-	        A=M
-	        M=D
-	        @SP
-	        M=M+1
-	         
-	        // push ARG
-	        @ARG
-	        D=M
-	        @SP
-	        A=M
-	        M=D
-	        @SP
-	        M=M+1
-	         
-	        // push THIS
-	        @THIS
-	        D=M
-	        @SP
-	        A=M
-	        M=D
-	        @SP
-	        M=M+1
-	         
-	        // push THAT
-	        @THAT
-	        D=M
-	        @SP
-	        A=M
-	        M=D
-	        @SP
-	        M=M+1
+	        @"~file_name~ ".ReturnAddress\n
+	        D=A\n
+	        @SP\n
 
-	        // ARG = SP-n-5
-	        @SP
-	        D=M
-	        @newARG  // = n-5 מספר,
-	        D=D-A
-	        @ARG
-	        M=D
-	         
-	        // LCL = SP
-	        @SP
-	        D=M
-	        @LCL
-	        M=D
-	         
-	        // goto g
-	        @g
-	        0; JMP
-	         
-	        // label return-address
-	        (g.ReturnAddress)
+	        A=M\n
+	        M=D\n
+	        @SP\n
+	        M=M+1\n
+	        // push LCL\n
+	        @LCL\n
+	        D=M\n
+	        @SP\n
+	        A=M\n
+	        M=D\n
+	        @SP\n
+	        M=M+1\n
+	        // push ARG\n
+	        @ARG\n
+	        D=M\n
+	        @SP\n
+	        A=M\n
+	        M=D\n
+	        @SP\n
+	        M=M+1\n
+	        // push THIS\n
+	        @THIS\n
+	        D=M\n
+	        @SP\n
+	        A=M\n
+	        M=D\n
+	        @SP\n
+	        M=M+1\n
+	        // push THAT\n
+	        @THAT\n
+	        D=M\n
+	        @SP\n
+	        A=M\n
+	        M=D\n
+	        @SP\n
+	        M=M+1\n
+	        // ARG = SP-n-5\n
+	        @SP\n
+	        D=M\n
+	        @newARG  // = n-5 num,\n
+	        D=D-A\n
+	        @ARG\n
+	        M=D\n
+	        // LCL = SP\n
+	        @SP\n
+	        D=M\n
+	        @LCL\n
+	        M=D\n
+	        // goto g\n
+	        @g\n
+	        0; JMP\n
+	        // label return-address\n
+	        ("~file_name~ ".ReturnAddress)\n
            ");
     }
     void writeArithmetic(string command){
@@ -321,7 +317,7 @@ public class CodeWriter{
                         @LCL\n
                         D = M\n
                         @"~to!string(index)~
-                            "\nD = D + A
+                            "\nD = D + A\n
                         A = D\n
                         D = M\n
                         @SP\n
@@ -332,11 +328,11 @@ public class CodeWriter{
                         break;
                     case "argument":
                         output_file.write(
-                            "*************---push argument command---************\n
+                            "//*************---push argument command---************\n
                         @ARG\n
-                         D = M
+                         D = M\n
                          @"~to!string(index)~
-                            "D = D + A
+                            "\nD = D + A\n
                          A = D\n
                          D = M\n
                          @SP\n
@@ -349,9 +345,9 @@ public class CodeWriter{
                         output_file.write(
                             "//*************---push this command---************\n
                         @THIS\n
-                         D =\n/n
+                         D =\n
                          @"~to!string(index)~
-                            "D = D + A
+                            "\nD = D + A\n
                          A = D\n
                          D = M\n
                          @SP\n
@@ -447,8 +443,8 @@ public class CodeWriter{
 
                         @LCL\n
                         A = M\n");
-                        for (int i = 0 ; i < index; i++){
-                            output_file.write("A = A + 1");
+                        for (int i = 0; i < index; i++){
+                            output_file.write("A = A + 1\n");
                         }
                         output_file.write("
                         M = D\n");
@@ -463,8 +459,8 @@ public class CodeWriter{
 
                         @ARG\n
                         A = M\n");
-                        for (int i = 0 ; i < index; i++){
-                            output_file.write("A = A + 1");
+                        for (int i = 0; i < index; i++){
+                            output_file.write("A = A + 1\n");
                         }
                         output_file.write("
                         M = D\n");
@@ -479,7 +475,7 @@ public class CodeWriter{
 
                         @THIS\n
                         A = M\n");
-                        for (int i = 0 ; i < index; i++){
+                        for (int i = 0; i < index; i++){
                             output_file.write("A = A + 1");
                         }
                         output_file.write("
@@ -495,8 +491,8 @@ public class CodeWriter{
 
                         @THAT\n
                         A = M\n");
-                        for (int i = 0 ; i < index; i++){
-                            output_file.write("A = A + 1");
+                        for (int i = 0; i < index; i++){
+                            output_file.write("A = A + 1\n");
                         }
                         output_file.write("
                         M = D\n");
@@ -510,7 +506,7 @@ public class CodeWriter{
                         D = M\n
 
                         @" ~file_name~ "." ~ to!string(index)~
-                        "\nM = D \n
+                            "\nM = D \n
 
                         @SP\n
                         M = M -1\n"
@@ -519,14 +515,14 @@ public class CodeWriter{
                     case "pointer":
                         index += 3;
                         output_file.write(
-                         "//*************---pop pointer command---************\n
+                            "//*************---pop pointer command---************\n
 
                         @SP\n
                         A = M -1\n
                         D = M\n
 
                         @"~to!string(index)~
-                        "\nM = D\n
+                            "\nM = D\n
                         A = D\n
                         @SP\n
                         M = M - 1\n"
@@ -540,22 +536,26 @@ public class CodeWriter{
                         A=M-1\n
                         D=M\n
                         @"~to!string(index)~
-                        "M=D\n
+                            "\nM=D\n
                         @SP\n
                         M=M-1\n"
                         );
                         break;
                     default:
-                        output_file.write( "//********POP ERROR********");
+                        output_file.write("//********POP ERROR********");
                         break;
                 }
                 break;
+
             default:
-                output_file.write("//********SEGMENT ERROR********");
+                output_file.write("//********SEGMENT ERROR********\n");
                 break;
         }
-
     }
+    void writeEndFile(int count){
+        output_file.write("//********THIS IS END OF: " ~ to!string(count) ~ " FILE ********\n");
+    }
+
     void close(){
         output_file.close();
     }

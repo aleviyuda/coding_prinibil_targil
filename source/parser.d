@@ -42,11 +42,11 @@ public class Parser{
                 return "C_GOTO";
             case "label":
                 return "C_LABEL";
-            case "Call":
+            case "call":
                 return "C_CALL";
             case "return":
                 return "C_RETURN";
-            case "Function":
+            case "function":
                 return "C_FUNCTION";
             default:
                 return "ERROR";
